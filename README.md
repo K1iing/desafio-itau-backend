@@ -1,85 +1,81 @@
-🏦 Itaú Unibanco — Desafio de Programação
+<div align="center">
 
-Este projeto foi desenvolvido como solução para o Desafio de Programação do Itaú Unibanco, cujo objetivo é construir uma API REST que recebe transações e retorna estatísticas das transações realizadas nos últimos 60 segundos.
+<img src="https://img.shields.io/badge/Java-17+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white"/>
+<img src="https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"/>
+<img src="https://img.shields.io/badge/REST_API-In--Memory-0052CC?style=for-the-badge&logo=api&logoColor=white"/>
+<img src="https://img.shields.io/badge/Status-Concluído-00C49A?style=for-the-badge"/>
 
-A aplicação foi desenvolvida utilizando Java + Spring Boot, seguindo rigorosamente todas as regras e restrições definidas no desafio.
+# 🏦 Itaú Unibanco — API de Transações
 
-🚀 Tecnologias Utilizadas
+> Desafio técnico de programação — API REST para controle e estatísticas de transações em tempo real.
 
-Java 17+
+</div>
 
-Spring Boot
+---
 
-Spring Web
+## 📋 Sobre o Projeto
 
-Jakarta Validation
+Esta aplicação foi desenvolvida como solução para o **Desafio de Programação do Itaú Unibanco**. O objetivo é construir uma **API REST** que recebe transações financeiras e retorna estatísticas em tempo real das transações realizadas nos **últimos 60 segundos**.
 
-API REST
+Toda a lógica opera **100% em memória**, sem uso de bancos de dados ou sistemas de cache externos.
 
-Armazenamento 100% em memória
+---
 
-JSON como formato único de entrada e saída
+## 🚀 Tecnologias
 
-⚠️ Não foi utilizado nenhum banco de dados ou sistema de cache, conforme exigido no desafio.
+| Tecnologia | Versão | Finalidade |
+|---|---|---|
+| Java | 17+ | Linguagem principal |
+| Spring Boot | 3.x | Framework Web |
+| Spring Web | — | Camada REST |
+| Jakarta Validation | — | Validação de dados |
+| Maven / Gradle | — | Gerenciamento de dependências |
 
-📌 Regras do Projeto
+---
 
-✔ Projeto hospedado publicamente no GitHub/GitLab
+## 📡 Endpoints da API
 
-✔ Sem fork de outros projetos
+### `POST /transacao` — Criar Transação
 
-✔ Mínimo de 3 commits (um para cada endpoint)
+Registra uma nova transação. Aceita apenas transações com data/hora nos últimos 60 segundos.
 
-✔ Todos os dados armazenados em memória
-
-✔ Apenas JSON como entrada e saída
-
-✔ Seguindo exatamente os nomes dos endpoints e campos especificados
-
-📡 Endpoints da API
-1️⃣ Criar Transação
-POST /transacao
-
-Recebe uma transação.
-
-Exemplo de Request:
+**Request Body:**
+```json
 {
   "valor": 123.45,
   "dataHora": "2026-03-13T12:34:56.789-03:00"
 }
-Regras de Validação:
+```
 
-A transação será aceita apenas se:
+**Regras de validação:**
 
-✔ valor estiver presente
+- `valor` é obrigatório e deve ser `>= 0`
+- `dataHora` é obrigatória e deve estar dentro dos últimos 60 segundos
 
-✔ dataHora estiver presente no maximo até 60 segundos.
+**Respostas:**
 
-✔ valor >= 0
+| Código | Descrição |
+|---|---|
+| `201 Created` | Transação válida e registrada com sucesso |
+| `422 Unprocessable Entity` | Dados inválidos (valor negativo, data futura, etc.) |
+| `400 Bad Request` | JSON inválido ou malformado |
 
-Respostas:
+---
 
-201 Created → Transação válida e registrada
+### `DELETE /transacao` — Limpar Transações
 
-422 Unprocessable Entity → Dados inválidos
+Remove **todas** as transações armazenadas em memória.
 
-400 Bad Request → JSON inválido ou malformado
+**Resposta:** `200 OK`
 
-2️⃣ Limpar Transações
-DELETE /transacao
+---
 
-Remove todas as transações armazenadas em memória.
+### `GET /estatistica` — Estatísticas
 
-Resposta:
+Retorna estatísticas das transações dos **últimos 60 segundos**.
 
-200 OK
-
-3️⃣ Estatísticas
-GET /estatistica
-
-Retorna estatísticas das transações realizadas nos últimos 60 segundos.
-
-Exemplo de Response:
+**Response Body:**
+```json
 {
   "count": 10,
   "sum": 1234.56,
@@ -87,60 +83,102 @@ Exemplo de Response:
   "min": 12.34,
   "max": 123.56
 }
-Regras:
+```
 
-Considerar apenas transações dos últimos 60 segundos
+| Campo | Descrição |
+|---|---|
+| `count` | Quantidade de transações no período |
+| `sum` | Soma total dos valores |
+| `avg` | Média dos valores |
+| `min` | Menor valor registrado |
+| `max` | Maior valor registrado |
 
-Caso não existam transações nesse período, todos os valores devem ser 0
+> ⚠️ Se não houver transações nos últimos 60 segundos, todos os campos retornam `0`.
 
-Campos retornados:
-Campo	Descrição
-count	Quantidade de transações
-sum	Soma dos valores
-avg	Média dos valores
-min	Menor valor
-max	Maior valor
+**Resposta:** `200 OK`
 
-Para cálculo das estatísticas, foi utilizada a abordagem baseada em DoubleSummaryStatistics.
+## 📂 Estrutura do Projeto
 
-Resposta:
+```
+src/
+└── main/
+    └── java/
+        └── com/itau/transacoes/
+            ├── controller/       # Endpoints REST
+            ├── service/          # Regras de negócio
+            ├── dto/              # Objetos de entrada e saída
+            └── storage/          # Armazenamento em memória
+```
 
-200 OK com o JSON das estatísticas
+---
 
-🧠 Decisões de Implementação
+## ▶️ Como Executar
 
-Armazenamento em memória utilizando estrutura de dados apropriada
+**Pré-requisitos:** Java 17+ e Maven instalados.
 
-Uso de OffsetDateTime para manipulação de data/hora
+```bash
+# Clone o repositório
+git clone https://github.com/seu-usuario/seu-repositorio.git
 
-Filtro temporal baseado em now().minusSeconds(60)
+# Acesse o diretório
+cd seu-repositorio
 
-Validações aplicadas conforme regras do desafio
+# Execute a aplicação
+./mvnw spring-boot:run
+```
 
-Tratamento de exceções para garantir retorno correto dos códigos HTTP
+A API estará disponível em: `http://localhost:8080`
 
-📂 Estrutura do Projeto
+---
 
-Controller → Camada de endpoints
+## 🧪 Exemplos de Uso
 
-Service → Regras de negócio
+**Criar uma transação:**
+```bash
+curl -X POST http://localhost:8080/transacao \
+  -H "Content-Type: application/json" \
+  -d '{"valor": 150.00, "dataHora": "2026-03-13T15:00:00.000-03:00"}'
+```
 
-DTOs → Objetos de entrada e saída
+**Consultar estatísticas:**
+```bash
+curl http://localhost:8080/estatistica
+```
 
-Armazenamento em memória
+**Limpar todas as transações:**
+```bash
+curl -X DELETE http://localhost:8080/transacao
+```
 
-🔒 Observações
+---
 
-Este projeto segue todas as restrições impostas pelo desafio:
+## 🔒 Restrições do Desafio
 
-Sem banco de dados
+| Restrição | Status |
+|---|---|
+| Sem banco de dados | ✅ |
+| Sem cache externo | ✅ |
+| Sem persistência em disco | ✅ |
+| Apenas armazenamento em memória | ✅ |
+| Apenas JSON como entrada/saída | ✅ |
+| Mínimo de 3 commits | ✅ |
+| Projeto público no GitHub | ✅ |
 
-Sem cache externo
+---
 
-Sem persistência em disco
+## ✅ Checklist do Projeto
 
-Apenas memória da aplicação
+- [x] `POST /transacao` implementado com todas as validações
+- [x] `DELETE /transacao` implementado
+- [x] `GET /estatistica` implementado com janela de 60 segundos
+- [x] Retorno `0` para estatísticas sem transações no período
+- [x] Códigos HTTP corretos para todos os cenários
+- [x] 100% sem banco de dados ou cache externo
 
-📌 Autor
+---
 
-Projeto desenvolvido como parte do desafio técnico do Itaú Unibanco.
+<div align="center">
+
+**Desenvolvido como parte do desafio técnico do Itaú Unibanco 🧡**
+
+</div>
